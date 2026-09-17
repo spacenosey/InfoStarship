@@ -13,11 +13,38 @@ h1 span{opacity:.55;font-weight:normal;font-size:16px}
 button{background:transparent;border:1px solid #39414b;color:#dce2e8;padding:6px 12px;font-size:10px;letter-spacing:1px;cursor:pointer;border-radius:3px}
 button:hover{background:#1a222c;border-color:#5c6878}
 
+/* Color global para todas las etiquetas dentro del SVG */
+svg text {
+  fill: #e2e8f0;
+}
+
+.label {
+  fill: #f8fafc !important;
+  font-family: sans-serif;
+  font-weight: 500;
+}
+
+.small {
+  fill: #94a3b8;
+  font-family: sans-serif;
+}
+
+.tipRow {
+  color: #c9d1d9;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.tipRow strong {
+  color: #8b949e;
+}
+
 /* Contenedor visualizador adaptable */
 .viz{position:relative;border:1px solid #151b22;background:#080b10;overflow:hidden;width:100%}
 svg{display:block;width:100%;height:auto}
 
 .sec{font-size:11px;letter-spacing:3px;fill:#69727e}
+.line, path {fill: none !important;}
 .line{fill:none;stroke:#65707d;stroke-width:1.2;opacity:.2}
 .line.on{opacity:.95;stroke:#38ef7d;stroke-width:2.2}
 .node{cursor:pointer;transition:opacity 0.2s ease}

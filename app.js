@@ -245,6 +245,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
     const lineSiteToBooster = add("path", {
       d: path(sitePos.x, sitePos.y, bx.get(d.booster), Y_BOOSTER),
       class: "line",
+      fill: "none",
       style: `stroke: ${lineColor}; stroke-width: 1.2px;`
     });
 
@@ -252,6 +253,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
     const lineBoosterToShip = add("path", {
       d: path(bx.get(d.booster), Y_BOOSTER, sx.get(d.ship), Y_STARSHIP),
       class: "line",
+      fill: "none",
       style: `stroke: ${lineColor}; stroke-width: 1.2px;`
     });
     
@@ -259,6 +261,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
     const lineShipToMission = add("path", {
       d: path(sx.get(d.ship), Y_STARSHIP, missionX, missionY),
       class: "line",
+      fill: "none",
       style: `stroke: ${lineColor}; stroke-width: 1.2px;`
     });
     
@@ -314,6 +317,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
     add("path", {
       d: `M${xFirst - 10} ${Y_STARSHIP + 12} H${xLast + 10}`,
       class: "line",
+      fill: "none",
       style: "stroke: #38bdf8; stroke-width: 1px; opacity: 0.4;"
     });
   });
@@ -345,7 +349,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
   ships.forEach((x) => {
     const e = add("circle", { cx: sx.get(x), cy: Y_STARSHIP, r: 8, class: "dot shipDot node" });
     e.dataset.t = x;
-    add("text", { x: sx.get(x), y: Y_STARSHIP - 14, "text-anchor": "middle", class: "label" }, x);
+    add("text", { x: sx.get(x), y: Y_STARSHIP - 14, "text-anchor": "middle", class: "label", fill: "#f8fafc" }, x);
   });
 
   // Dibujar los nodos circulares de los Boosters con su color dinámico
@@ -359,7 +363,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
       style: `fill: ${nodeColor}; stroke: #080b10; stroke-width: 2px;` 
     });
     e.dataset.t = x;
-    add("text", { x: bx.get(x), y: Y_BOOSTER - 14, "text-anchor": "middle", class: "label" }, x);
+    add("text", { x: bx.get(x), y: Y_BOOSTER - 14, "text-anchor": "middle", class: "label", fill: "#f8fafc" }, x);
   });
 
   // Nodos de MISIONES
@@ -374,6 +378,7 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
       x: x + 10, 
       y: y + 3, 
       class: "label",
+      fill: "#f8fafc",
       style: "font-size: 12px;" // Ajusta 12px al tamaño que prefieras (por defecto es 10px)
     }, d.mission || d.id);
 
@@ -419,14 +424,26 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
     if(type==="site"){
       const siteObj = Object.values(siteCoords).find(s=>s.id===val);
       const count = M.filter(d=>d.siteId===val).length;
-      T.innerHTML=`<div class="tipTitle">${esc(siteObj.mission)}</div><div class="tipSub">${count} Lanzamiento(s) registrados aquí</div>`;
+      T.innerHTML=`<div class="tipTitle">${esc(siteObj.name)}</div><div class="tipSub">${count} Lanzamiento(s) registrados aquí</div>`;
       T.style.display="block";
       T.style.left=(ev.offsetX+18)+"px";
       T.style.top=(ev.offsetY+18)+"px";
     } else {
       const d=M.find(x=>x.id===val)||M.find(x=>x.ship===val)||M.find(x=>x.booster===val);
       if(d){
-        T.innerHTML=`<div class="tipTitle">${esc(type==="m"?d.mission||d.id:val)}</div><div class="tipSub">${esc(d.date)} · Booster ${esc(d.booster)} · Ship ${esc(d.ship)}</div>`;
+        // Determinamos el color del estado de la misión
+        const statusColor = String(d.status).toLowerCase().includes("success") ? "#38ef7d" : "#ff4d4d";
+
+        T.innerHTML=`
+          <div class="tipTitle">${esc(d.mission || d.id)}</div>
+          <div class="tipRow"><strong>Date:</strong> ${esc(formatDateMMDDYYYY(d.date))}</div>
+          <div class="tipRow"><strong>Status:</strong> <span style="color:${statusColor}">${esc(d.status || "N/A")}</span></div>
+          <div class="tipRow"><strong>Detail:</strong> ${esc(d.missionDetail || "N/A")}</div>
+          <div class="tipRow"><strong>Pad:</strong> ${esc(d.pad || "N/A")}</div>
+          <div class="tipRow"><strong>Landing Site:</strong> ${esc(d.landingSite || "N/A")}</div>
+          <div class="tipRow"><strong>Orbit:</strong> ${esc(d.orbit || "N/A")}</div>
+          <div class="tipSub" style="margin-top:4px; font-size:10px;">Booster ${esc(d.booster)} · Ship ${esc(d.ship)}</div>
+        `;
         T.style.display="block";
         T.style.left=(ev.offsetX+18)+"px";
         T.style.top=(ev.offsetY+18)+"px";
@@ -442,23 +459,4 @@ const uniq=a=>[...new Set(a.filter(x=>x!==null&&x!==undefined&&String(x).trim()!
   }));
 
   document.querySelector(".viz").addEventListener("mouseleave",()=>{clear();T.style.display="none"});
-
-  document.querySelector("#export").onclick=()=>{
-    const c=document.createElement("canvas"),
-          k=c.getContext("2d"),
-          z=new XMLSerializer().serializeToString(S),
-          u=URL.createObjectURL(new Blob([z],{type:"image/svg+xml"})),
-          im=new Image;
-    im.onload=()=>{
-      c.width=W*1.5;
-      c.height=H*1.5;
-      k.drawImage(im,0,0,c.width,c.height);
-      URL.revokeObjectURL(u);
-      const a=document.createElement("a");
-      a.href=c.toDataURL("image/jpeg",.92);
-      a.download="starship-fleet.jpg";
-      a.click();
-    };
-    im.src=u;
-  };
 })();
